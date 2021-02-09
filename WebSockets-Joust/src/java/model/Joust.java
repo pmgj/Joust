@@ -1,14 +1,37 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
-/**
- *
- * @author paulo
- */
+import java.util.Arrays;
+
 public class Joust {
-    
+
+    private final int rows;
+    private final int cols;
+    private final CellState[][] board;
+
+    public Joust(int nrows, int ncols) {
+        this.rows = nrows;
+        this.cols = ncols;
+        this.board = this.startBoard();
+    }
+
+    private CellState[][] startBoard() {
+        CellState[][] matrix = new CellState[rows][cols];
+        for (CellState[] row : matrix) {
+            Arrays.fill(row, CellState.EMPTY);
+        }
+        CellState[] players = {CellState.PLAYER1, CellState.PLAYER2};
+        for (int i = 0; i < players.length;) {
+            int row = (int) Math.floor(Math.random() * rows);
+            int col = (int) Math.floor(Math.random() * cols);
+            if (matrix[row][col] == CellState.EMPTY) {
+                matrix[row][col] = players[i];
+                i++;
+            }
+        }
+        return matrix;
+    }    
+
+    public CellState[][] getBoard() {
+        return board;
+    }
 }
