@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class Joust {
 
@@ -33,5 +34,11 @@ public class Joust {
 
     public CellState[][] getBoard() {
         return board;
+    }
+    
+    public static void main(String[] args) {
+        Joust j = new Joust(8, 8);
+        CellState[][] b = j.getBoard();
+        Stream.of(b).forEach(x -> System.out.println(Arrays.toString(x)));
     }
 }
