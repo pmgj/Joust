@@ -1,5 +1,3 @@
-/* global WebSocket */
-
 function GUI() {
     var ws = null;
     var images = {PLAYER1: "Cavalo-Branco.svg", PLAYER2: "Cavalo-Preto.svg"};
