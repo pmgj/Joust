@@ -34,6 +34,10 @@ function GUI() {
             }
         }
     }
+    function setButtonText(on) {
+        let button = document.querySelector("input[type='button']");
+        button.value = (on) ? "Start" : "Quit";
+    }
     function clearBoard() {
         let cells = document.querySelectorAll("td");
         cells.forEach(td => {
@@ -42,6 +46,10 @@ function GUI() {
             td.onclick = undefined;
         });
     }
+    function unsetEvents() {
+        let cells = document.querySelectorAll("td");
+        cells.forEach(td => td.onclick = undefined);
+    }
     function readData(evt) {
         let data = JSON.parse(evt.data);
         switch (data.type) {
@@ -49,8 +57,7 @@ function GUI() {
                 player = data.turn;
                 setMessage("");
                 clearBoard();
-                let img = document.getElementById("playerPiece");
-                img.src = `imagens/${images[player]}`;
+                setPlayerPiece(`imagens/${images[player]}`);
                 break;
             case "MESSAGE":
                 printBoard(data.board);
@@ -58,10 +65,22 @@ function GUI() {
                 break;
         }
     }
+    function setPlayerPiece(url) {
+        let img = document.getElementById("playerPiece");
+        img.src = url;
+    }
     function startGame() {
-        if (ws === null) {
+        if (ws) {
+            ws.close();
+            ws = null;
+            setButtonText(true);
+            unsetEvents();
+            setMessage("");
+            setPlayerPiece("");
+        } else {
             ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
             ws.onmessage = readData;
+            setButtonText(false);
         }
     }
     function init() {

@@ -38,12 +38,35 @@ public class Joust {
             return Move.INVALID;
         }
         Cell beginCell = getPlayerCell(player);
+        Move m = isValidMove(beginCell, endCell);
+        if (m == Move.VALID) {
+            int or = beginCell.getX(), oc = beginCell.getY();
+            int dr = endCell.getX(), dc = endCell.getY();
+            board[dr][dc] = board[or][oc];
+            board[or][oc] = CellState.BLOCKED;
+            turn = (turn == Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
+        }
+        return m;
+    }
+
+    private Move isValidMove(Cell beginCell, Cell endCell) {
         int or = beginCell.getX(), oc = beginCell.getY();
         int dr = endCell.getX(), dc = endCell.getY();
-        board[dr][dc] = board[or][oc];
-        board[or][oc] = CellState.BLOCKED;
-        turn = (turn == Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
-        return Move.VALID;
+        /* Destino deve estar vazio */
+        if (board[dr][dc] != CellState.EMPTY) {
+            return Move.INVALID;
+        }
+        int[] lin = {-2, 2, -1, 1};
+        int[][] inc = {{-1, 1}, {-1, 1}, {-2, 2}, {-2, 2}};
+        for (int i = 0; i < lin.length; i++) {
+            for (int j = 0; j < inc[i].length; j++) {
+                Cell cell = new Cell(or + lin[i], oc + inc[i][j]);
+                if (isValidCell(cell) && cell.equals(endCell)) {
+                    return Move.VALID;
+                }
+            }
+        }
+        return Move.INVALID;
     }
 
     private Cell getPlayerCell(Player player) {
@@ -56,6 +79,10 @@ public class Joust {
             }
         }
         return null;
+    }
+
+    private boolean isValidCell(Cell cell) {
+        return (cell.getX() < rows && cell.getX() >= 0 && cell.getY() < cols && cell.getY() >= 0);
     }
 
     public Player getTurn() {

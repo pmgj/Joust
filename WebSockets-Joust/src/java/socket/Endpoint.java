@@ -2,6 +2,7 @@ package socket;
 
 import java.io.IOException;
 import javax.websocket.EncodeException;
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -28,10 +29,6 @@ public class Endpoint {
             game = new Joust(8, 8);
             s2.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER2));
             sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
-//            Message m = new Message();
-//            m.setBoard(game.getBoard());
-//            s1.getBasicRemote().sendObject(m);
-//            s2.getBasicRemote().sendObject(m);
         } else {
             session.close();
         }
@@ -43,6 +40,12 @@ public class Endpoint {
         if (ret == Move.VALID) {
             sendMessage(new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
         }
+    }
+
+    @OnClose
+    public void onClose() throws IOException {
+        s1 = null;
+        s2 = null;
     }
 
     private void sendMessage(Message msg) throws EncodeException, IOException {
