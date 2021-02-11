@@ -20,6 +20,9 @@ tr:nth-child(2n+1) td:nth-child(2n), tr:nth-child(2n) td:nth-child(2n+1) {
     background-color: gray;
     color: white;
 }
+.caminhado {
+    border: 3px solid blue;
+}
 p {
     text-align: center;
 }
