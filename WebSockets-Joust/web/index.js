@@ -63,20 +63,26 @@ function GUI() {
                 printBoard(data.board);
                 setMessage(data.turn === player ? "Your turn." : "Opponent's turn.");
                 break;
+            case "ENDGAME":
+                printBoard(data.board);
+                closeConnection(1000, data.winner);
+                break;
         }
     }
     function setPlayerPiece(url) {
         let img = document.getElementById("playerPiece");
         img.src = url;
     }
+    function closeConnection(closeCode, winner) {
+        unsetEvents();
+        ws.close(closeCode);
+        ws = null;
+        setButtonText(true);
+        setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === player ? "You win!" : "You lose!")}`);
+    }
     function startGame() {
         if (ws) {
-            ws.close();
-            ws = null;
-            setButtonText(true);
-            unsetEvents();
-            setMessage("");
-            setPlayerPiece("");
+            closeConnection(4000);
         } else {
             ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
             ws.onmessage = readData;
