@@ -51,18 +51,15 @@ public class Endpoint {
 
     @OnClose
     public void onClose(Session session, CloseReason reason) throws IOException, EncodeException {
-        Message msg = new Message(ConnectionType.ENDGAME, game.getWinner(), game.getBoard());
         if (s1 == session) {
             if (reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                msg.setWinner(Winner.PLAYER2);
-                s2.getBasicRemote().sendObject(msg);
+                s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Winner.PLAYER2, game.getBoard()));
             }
             s1 = null;
         }
         if (s2 == session) {
             if (reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                msg.setWinner(Winner.PLAYER1);
-                s1.getBasicRemote().sendObject(msg);
+                s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Winner.PLAYER1, game.getBoard()));
             }
             s2 = null;
         }
