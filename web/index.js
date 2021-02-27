@@ -1,6 +1,7 @@
 function GUI() {
     var ws = null;
     var images = {PLAYER1: "Cavalo-Branco.svg", PLAYER2: "Cavalo-Preto.svg"};
+    var player;
     function coordinates(cell) {
         return new Cell(cell.parentNode.rowIndex, cell.cellIndex);
     }
@@ -34,6 +35,10 @@ function GUI() {
             }
         }
     }
+    function setButtonText(on) {
+        let button = document.querySelector("input[type='button']");
+        button.value = (on) ? "Start" : "Quit";
+    }
     function clearBoard() {
         let cells = document.querySelectorAll("td");
         cells.forEach(td => {
@@ -42,6 +47,10 @@ function GUI() {
             td.onclick = undefined;
         });
     }
+    function unsetEvents() {
+        let cells = document.querySelectorAll("td");
+        cells.forEach(td => td.onclick = undefined);
+    }
     function readData(evt) {
         let data = JSON.parse(evt.data);
         switch (data.type) {
@@ -49,19 +58,36 @@ function GUI() {
                 player = data.turn;
                 setMessage("");
                 clearBoard();
-                let img = document.getElementById("playerPiece");
-                img.src = `imagens/${images[player]}`;
+                setPlayerPiece(`imagens/${images[player]}`);
                 break;
             case "MESSAGE":
                 printBoard(data.board);
                 setMessage(data.turn === player ? "Your turn." : "Opponent's turn.");
                 break;
+            case "ENDGAME":
+                printBoard(data.board);
+                closeConnection(1000, data.winner);
+                break;
         }
     }
+    function setPlayerPiece(url) {
+        let img = document.getElementById("playerPiece");
+        img.src = url;
+    }
+    function closeConnection(closeCode, winner) {
+        unsetEvents();
+        ws.close(closeCode);
+        ws = null;
+        setButtonText(true);
+        setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === player ? "You win!" : "You lose!")}`);
+    }
     function startGame() {
-        if (ws === null) {
+        if (ws) {
+            closeConnection(4000);
+        } else {
             ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
             ws.onmessage = readData;
+            setButtonText(false);
         }
     }
     function init() {
