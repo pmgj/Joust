@@ -62,14 +62,11 @@ public class Joust {
         if (board[dr][dc] != CellState.EMPTY) {
             return new MoveResult(Move.INVALID);
         }
-        int[] lin = {-2, 2, -1, 1};
-        int[][] inc = {{-1, 1}, {-1, 1}, {-2, 2}, {-2, 2}};
-        for (int i = 0; i < lin.length; i++) {
-            for (int j = 0; j < inc[i].length; j++) {
-                Cell cell = new Cell(or + lin[i], oc + inc[i][j]);
-                if (isValidCell(cell) && cell.equals(endCell)) {
-                    return new MoveResult(Move.VALID);
-                }
+        Cell[] pos = {new Cell(-2, -1), new Cell(-2, 1), new Cell(2, -1), new Cell(2, 1), new Cell(-1, -2), new Cell(-1, 2), new Cell(1, -2), new Cell(1, 2)};
+        for (Cell c : pos) {
+            Cell cell = new Cell(or + c.getX(), oc + c.getY());
+            if (isValidCell(cell) && cell.equals(endCell)) {
+                return new MoveResult(Move.VALID);
             }
         }
         return new MoveResult(Move.INVALID);

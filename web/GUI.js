@@ -1,3 +1,5 @@
+import {Cell} from "./Cell.js";
+
 function GUI() {
     var ws = null;
     var images = {PLAYER1: "Cavalo-Branco.svg", PLAYER2: "Cavalo-Preto.svg"};
@@ -96,7 +98,5 @@ function GUI() {
     }
     return {init};
 }
-onload = function () {
-    let gui = new GUI();
-    gui.init();
-};
+let gui = new GUI();
+gui.init();
