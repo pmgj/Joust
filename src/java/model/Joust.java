@@ -73,8 +73,8 @@ public class Joust {
     }
 
     private Cell getPlayerCell(Player player) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 if ((board[i][j] == CellState.PLAYER1 && player == Player.PLAYER1)
                         || (board[i][j] == CellState.PLAYER2 && player == Player.PLAYER2)) {
                     return new Cell(i, j);
