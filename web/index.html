@@ -8,21 +8,24 @@
         <script type="module" src="GUI.js"></script>
     </head>
     <body>
-        <table>
-            <caption>Joust</caption>
-            <tbody>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-            </tbody>
-        </table>
-        <p><input type="button" value="Start" /></p>
-        <p>Your piece is <img src="" alt="" id="playerPiece"></p>
-        <p id="message"></p>
+        <div id="rooms"></div>
+        <div id="room">
+            <table>
+                <caption>Joust</caption>
+                <tbody>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+            <p><input type="button" value="Start" id="quit" /></p>
+            <p id="pieceMessage">Your piece is <img src="" alt="" id="playerPiece"></p>
+            <p id="message"></p>
+        </div>
     </body>
 </html>

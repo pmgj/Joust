@@ -23,6 +23,9 @@ tr:nth-child(2n+1) td:nth-child(2n), tr:nth-child(2n) td:nth-child(2n+1) {
 p {
     text-align: center;
 }
-.caminhado {
+.blocked {
     border: 3px solid blue;
+}
+fieldset {
+    width: 200px;
 }

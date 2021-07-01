@@ -1,5 +1,7 @@
 package socket;
 
+import java.util.List;
+import model.Cell;
 import model.CellState;
 import model.Player;
 import model.Winner;
@@ -10,9 +12,17 @@ public class Message {
     private Player turn;
     private CellState[][] board;
     private Winner winner;
+    private List<RoomMessage> rooms;
+    private int room;
+    private Cell cell;
 
     public Message() {
 
+    }
+
+    public Message(ConnectionType type, List<RoomMessage> rooms) {
+        this.type = type;
+        this.rooms = rooms;
     }
 
     public Message(ConnectionType type, Player turn) {
@@ -62,5 +72,29 @@ public class Message {
 
     public void setWinner(Winner winner) {
         this.winner = winner;
+    }
+
+    public List<RoomMessage> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<RoomMessage> rooms) {
+        this.rooms = rooms;
+    }
+
+    public int getRoom() {
+        return room;
+    }
+
+    public void setRoom(int room) {
+        this.room = room;
+    }
+
+    public Cell getCell() {
+        return cell;
+    }
+
+    public void setCell(Cell cell) {
+        this.cell = cell;
     }
 }

@@ -5,9 +5,8 @@ import javax.json.bind.JsonbException;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-import model.Cell;
 
-public class CellDecoder implements Decoder.Text<Cell> {
+public class MessageDecoder implements Decoder.Text<Message> {
 
     @Override
     public void init(final EndpointConfig config) {
@@ -18,14 +17,14 @@ public class CellDecoder implements Decoder.Text<Cell> {
     }
 
     @Override
-    public Cell decode(final String textMessage) throws DecodeException {
-        return JsonbBuilder.create().fromJson(textMessage, Cell.class);
+    public Message decode(final String textMessage) throws DecodeException {
+        return JsonbBuilder.create().fromJson(textMessage, Message.class);
     }
 
     @Override
     public boolean willDecode(final String s) {
         try {
-            JsonbBuilder.create().fromJson(s, Cell.class);
+            JsonbBuilder.create().fromJson(s, Message.class);
             return true;
         } catch (JsonbException ex) {
             return false;
