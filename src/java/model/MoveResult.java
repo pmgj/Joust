@@ -8,8 +8,8 @@ public class MoveResult {
         this.move = move;
     }
     
-    public Move getMove() {
-        return move;
+    public boolean isValidMove() {
+        return this.move == Move.VALID;
     }
 
     public void setMove(Move move) {

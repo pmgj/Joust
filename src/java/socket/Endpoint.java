@@ -11,7 +11,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import model.Joust;
-import model.Move;
 import model.MoveResult;
 import model.Player;
 import model.Winner;
@@ -56,6 +55,7 @@ public class Endpoint {
                 break;
             case WATCH_ROOM:
                 room = rooms.get(message.getRoom());
+                onRooms.remove(session);
                 room.getVisitors().add(session);
                 Joust j = room.getGame();
                 session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.VISITOR));
@@ -65,15 +65,11 @@ public class Endpoint {
                 room = findRoom(session);
                 Joust game = room.getGame();
                 MoveResult ret = game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2, message.getCell());
-                if (ret.getMove() == Move.VALID) {
+                if (ret.isValidMove()) {
                     if (ret.getWinner() == null) {
                         sendMessage(room, new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
                     } else {
                         sendMessage(room, new Message(ConnectionType.ENDGAME, ret.getWinner(), game.getBoard()));
-                        room.getS1().close();
-                        room.getS2().close();
-                        room.setS1(null);
-                        room.setS2(null);
                     }
                 }
         }
@@ -81,6 +77,9 @@ public class Endpoint {
 
     @OnClose
     public void onClose(Session session, CloseReason reason) throws IOException, EncodeException {
+        if (onRooms.contains(session)) {
+            onRooms.remove(session);
+        }
         Room r = findRoom(session);
         if (r == null) {
             return;
@@ -91,22 +90,24 @@ public class Endpoint {
         List<Session> visitors = r.getVisitors();
         if (s1 == session) {
             if (s2 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                s2.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Winner.PLAYER2, game.getBoard()));
+                sendMessage(r, new Message(ConnectionType.ENDGAME, Winner.PLAYER2, game.getBoard()));
             }
         }
         if (s2 == session) {
             if (s1 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                s1.getBasicRemote().sendObject(new Message(ConnectionType.ENDGAME, Winner.PLAYER1, game.getBoard()));
+                sendMessage(r, new Message(ConnectionType.ENDGAME, Winner.PLAYER1, game.getBoard()));
             }
         }
         if (visitors.contains(session)) {
             visitors.remove(session);
+            onRooms.add(session);
         }
-        if(s1 == session || s2 == session) {
-            int index = rooms.indexOf(r);
-            rooms.set(index, new Room());
-            onRooms.remove(session);
-            updateRooms();            
+        if (s1 == session || s2 == session) {
+            if (rooms.contains(r)) {
+                int index = rooms.indexOf(r);
+                rooms.set(index, new Room());
+                updateRooms();
+            }
         }
     }
 
@@ -121,18 +122,10 @@ public class Endpoint {
 
     private void updateRooms() throws EncodeException, IOException {
         Message message = new Message(ConnectionType.GET_ROOMS, this.convert(rooms));
-        for (Room room : rooms) {
-            if (room != null) {
-                if (room.getS1() != null) {
-                    room.getS1().getBasicRemote().sendObject(message);
-                }
-                if (room.getS2() != null) {
-                    room.getS2().getBasicRemote().sendObject(message);
-                }
-            }
-        }
         for (Session s : onRooms) {
-            s.getBasicRemote().sendObject(message);
+            if (s.isOpen()) {
+                s.getBasicRemote().sendObject(message);
+            }
         }
     }
 
@@ -143,8 +136,12 @@ public class Endpoint {
     }
 
     private void sendMessage(Room room, Message msg) throws EncodeException, IOException {
-        room.getS1().getBasicRemote().sendObject(msg);
-        room.getS2().getBasicRemote().sendObject(msg);
+        if (room.getS1().isOpen()) {
+            room.getS1().getBasicRemote().sendObject(msg);
+        }
+        if (room.getS2().isOpen()) {
+            room.getS2().getBasicRemote().sendObject(msg);
+        }
         for (Session s : room.getVisitors()) {
             s.getBasicRemote().sendObject(msg);
         }

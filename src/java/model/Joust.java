@@ -42,7 +42,7 @@ public class Joust {
         }
         Cell beginCell = getPlayerCell(player);
         MoveResult m = isValidMove(beginCell, endCell);
-        if (m.getMove() == Move.VALID) {
+        if (m.isValidMove()) {
             int or = beginCell.getX(), oc = beginCell.getY();
             int dr = endCell.getX(), dc = endCell.getY();
             board[dr][dc] = board[or][oc];
@@ -88,7 +88,7 @@ public class Joust {
         boolean ok = false;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (isValidMove(cell, new Cell(i, j)).getMove() == Move.VALID) {
+                if (isValidMove(cell, new Cell(i, j)).isValidMove()) {
                     ok = true;
                 }
             }

@@ -103,7 +103,7 @@ function GUI() {
                 break;
             case "ENDGAME":
                 printBoard(data.board);
-                closeConnection(1000, data);
+                closeConnection(1000, data.winner);
                 break;
         }
     }
@@ -111,16 +111,17 @@ function GUI() {
         let img = document.getElementById("playerPiece");
         img.src = url;
     }
-    function closeConnection(closeCode, data) {
+    function closeConnection(closeCode, winner) {
         unsetEvents();
         ws.close(closeCode);
         ws = null;
         setButtonText(msgs["EXIT_ROOM"]);
         if (player === "VISITOR") {
-//            setMessage(`Game Over! Winner: <img src='imagens/${images[data.winner]}' alt=''>`);
-            setMessage(`Game Over! ${(data.winner === "DRAW") ? "Draw!" : `Winner: <img src='imagens/${images[data.winner]}' alt=''>`}`);
+            if (winner) {
+                setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='imagens/${images[winner]}' alt=''>`}`);
+            }
         } else {
-            setMessage(`Game Over! ${(data.winner === "DRAW") ? "Draw!" : (data.winner === player ? "You win!" : "You lose!")}`);
+            setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === player ? "You win!" : "You lose!")}`);
         }
     }
     function startGame() {

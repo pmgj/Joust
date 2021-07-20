@@ -16,10 +16,10 @@ public class Room {
         visitors.clear();
     }
     
-    public void reset() {
-        this.game = new Joust(8, 8);
-        visitors.clear();        
-    }
+//    public void reset() {
+//        this.game = new Joust(8, 8);
+//        visitors.clear();        
+//    }
     
     public List<Session> getVisitors() {
         return visitors;
