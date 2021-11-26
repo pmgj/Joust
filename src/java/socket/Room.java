@@ -12,15 +12,10 @@ public class Room {
     private List<Session> visitors = new ArrayList();
 
     public Room() {
-        this.game = new Joust(8, 8);
+        this.game = null;
         visitors.clear();
     }
-    
-//    public void reset() {
-//        this.game = new Joust(8, 8);
-//        visitors.clear();        
-//    }
-    
+        
     public List<Session> getVisitors() {
         return visitors;
     }
@@ -48,8 +43,12 @@ public class Room {
     public Joust getGame() {
         return game;
     }
-
-    public void setGame(Joust game) {
-        this.game = game;
+    
+    public void createGame() {
+        this.game = new Joust(8, 8);
     }
+
+//    public void setGame(Joust game) {
+//        this.game = game;
+//    }
 }

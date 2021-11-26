@@ -8,7 +8,7 @@ public class Joust {
     private final int cols;
     private final CellState[][] board;
     private Player turn = Player.PLAYER1;
-    private MoveResult gameIsOver = new MoveResult(Move.VALID);
+    private Winner gameIsOver;
 
     public Joust(int nrows, int ncols) {
         this.rows = nrows;
@@ -33,42 +33,50 @@ public class Joust {
         return matrix;
     }
 
-    public MoveResult move(Player player, Cell endCell) {
-        if (gameIsOver.getWinner() != null) {
+    public Winner move(Player player, Cell endCell) throws Exception {
+        if (gameIsOver != null) {
             return gameIsOver;
         }
         if (player != turn) {
-            return new MoveResult(Move.INVALID);
+            throw new Exception("It's not your turn.");
         }
         Cell beginCell = getPlayerCell(player);
-        MoveResult m = isValidMove(beginCell, endCell);
-        if (m.isValidMove()) {
-            int or = beginCell.getX(), oc = beginCell.getY();
-            int dr = endCell.getX(), dc = endCell.getY();
-            board[dr][dc] = board[or][oc];
-            board[or][oc] = CellState.BLOCKED;
-            turn = (turn == Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
-            gameIsOver = isGameOver();
-            return gameIsOver;
+        int or = beginCell.getX(), oc = beginCell.getY();
+        int dr = endCell.getX(), dc = endCell.getY();
+        if (beginCell.equals(endCell)) {
+            throw new Exception("Origin and destination must be different.");
         }
-        return m;
+        if (board[or][oc] == CellState.EMPTY) {
+            throw new Exception("Origin does not have a piece.");
+        }
+        if (board[dr][dc] != CellState.EMPTY) {
+            throw new Exception("Destination must be empty.");
+        }
+        if (!isValidMove(beginCell, endCell)) {
+            throw new Exception("This move is invalid.");
+        }
+        board[dr][dc] = board[or][oc];
+        board[or][oc] = CellState.BLOCKED;
+        turn = (turn == Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
+        gameIsOver = isGameOver();
+        return gameIsOver;
     }
 
-    private MoveResult isValidMove(Cell beginCell, Cell endCell) {
+    private boolean isValidMove(Cell beginCell, Cell endCell) {
         int or = beginCell.getX(), oc = beginCell.getY();
         int dr = endCell.getX(), dc = endCell.getY();
         /* Destino deve estar vazio */
         if (board[dr][dc] != CellState.EMPTY) {
-            return new MoveResult(Move.INVALID);
+            return false;
         }
         Cell[] pos = {new Cell(-2, -1), new Cell(-2, 1), new Cell(2, -1), new Cell(2, 1), new Cell(-1, -2), new Cell(-1, 2), new Cell(1, -2), new Cell(1, 2)};
         for (Cell c : pos) {
             Cell cell = new Cell(or + c.getX(), oc + c.getY());
             if (isValidCell(cell) && cell.equals(endCell)) {
-                return new MoveResult(Move.VALID);
+                return true;
             }
         }
-        return new MoveResult(Move.INVALID);
+        return false;
     }
 
     private Cell getPlayerCell(Player player) {
@@ -88,7 +96,7 @@ public class Joust {
         boolean ok = false;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (isValidMove(cell, new Cell(i, j)).isValidMove()) {
+                if (isValidMove(cell, new Cell(i, j))) {
                     ok = true;
                 }
             }
@@ -96,22 +104,21 @@ public class Joust {
         return ok;
     }
 
-    private MoveResult isGameOver() {
+    private Winner isGameOver() {
         boolean p1 = canMove(Player.PLAYER1);
         boolean p2 = canMove(Player.PLAYER2);
-        MoveResult mr = new MoveResult(Move.VALID);
         if (!p1 && !p2) {
-            mr.setWinner(Winner.DRAW);
+            return Winner.DRAW;
         } else if (!p1) {
-            mr.setWinner(Winner.PLAYER2);
+            return Winner.PLAYER2;
         } else if (!p2) {
-            mr.setWinner(Winner.PLAYER1);
+            return Winner.PLAYER1;
         }
-        return mr;
+        return null;
     }
 
     public Winner getWinner() {
-        return isGameOver().getWinner();
+        return isGameOver();
     }
 
     private boolean isValidCell(Cell cell) {

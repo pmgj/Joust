@@ -11,7 +11,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import model.Joust;
-import model.MoveResult;
 import model.Player;
 import model.Winner;
 
@@ -48,6 +47,7 @@ public class Endpoint {
                     onRooms.remove(session);
                     room.setS2(session);
                     session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER2));
+                    room.createGame();
                     Joust j = room.getGame();
                     sendMessage(room, new Message(ConnectionType.MESSAGE, j.getTurn(), j.getBoard()));
                     updateRooms();
@@ -55,22 +55,25 @@ public class Endpoint {
                 break;
             case WATCH_ROOM:
                 room = rooms.get(message.getRoom());
+                Joust j = room.getGame();
+                if(j == null) return;
                 onRooms.remove(session);
                 room.getVisitors().add(session);
-                Joust j = room.getGame();
                 session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.VISITOR));
                 session.getBasicRemote().sendObject(new Message(ConnectionType.MESSAGE, j.getTurn(), j.getBoard()));
                 break;
             case MESSAGE:
                 room = findRoom(session);
                 Joust game = room.getGame();
-                MoveResult ret = game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2, message.getCell());
-                if (ret.isValidMove()) {
-                    if (ret.getWinner() == null) {
+                try {
+                    Winner ret = game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2, message.getCell());
+                    if (ret == null) {
                         sendMessage(room, new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
                     } else {
-                        sendMessage(room, new Message(ConnectionType.ENDGAME, ret.getWinner(), game.getBoard()));
+                        sendMessage(room, new Message(ConnectionType.ENDGAME, ret, game.getBoard()));
                     }
+                } catch (Exception ex) {
+
                 }
         }
     }
