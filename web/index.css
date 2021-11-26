@@ -26,6 +26,16 @@ p {
 .blocked {
     border: 3px solid blue;
 }
+#rooms {
+    grid-template-columns: 33% 33% 33%;
+    max-width: 40%;
+    margin: 0 auto;
+    gap: 10px;
+}
 fieldset {
-    width: 200px;
+    height: 50px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -139,9 +139,9 @@ function GUI() {
         let room = document.querySelector("#room");
         if (show) {
             rooms.style.display = "none";
-            room.style.display = "block";
+            room.style.display = "grid";
         } else {
-            rooms.style.display = "block";
+            rooms.style.display = "grid";
             room.style.display = "none";
         }
     }
