@@ -1,10 +1,10 @@
-import {Cell} from "./Cell.js";
+import Cell from "./Cell.js";
 
 function GUI() {
     let ws = null;
-    let images = {PLAYER1: "Cavalo-Branco.svg", PLAYER2: "Cavalo-Preto.svg"};
+    let images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
     let player;
-    let msgs = {QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room"};
+    let msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };
     function coordinates(cell) {
         return new Cell(cell.parentNode.rowIndex, cell.cellIndex);
     }
@@ -15,7 +15,7 @@ function GUI() {
     function play(event) {
         let cellDestino = event.currentTarget;
         let dCell = coordinates(cellDestino);
-        ws.send(JSON.stringify({type: "MESSAGE", cell: dCell}));
+        ws.send(JSON.stringify({ type: "MESSAGE", cell: dCell }));
     }
     function printBoard(matrix) {
         let table = document.querySelector("table");
@@ -32,7 +32,7 @@ function GUI() {
                         break;
                     case "PLAYER1":
                     case "PLAYER2":
-                        td.innerHTML = `<img src='imagens/${images[matrix[i][j]]}' alt=''>`;
+                        td.innerHTML = `<img src='images/${images[matrix[i][j]]}' alt=''>`;
                         break;
                 }
             }
@@ -55,11 +55,11 @@ function GUI() {
         cells.forEach(td => td.onclick = undefined);
     }
     function enterRoom() {
-        let obj = {type: "ENTER_ROOM", room: parseInt(this.dataset.room)};
+        let obj = { type: "ENTER_ROOM", room: parseInt(this.dataset.room) };
         ws.send(JSON.stringify(obj));
     }
     function watchRoom() {
-        let obj = {type: "WATCH_ROOM", room: parseInt(this.dataset.room)};
+        let obj = { type: "WATCH_ROOM", room: parseInt(this.dataset.room) };
         ws.send(JSON.stringify(obj));
     }
     function readData(evt) {
@@ -90,13 +90,13 @@ function GUI() {
                     msg.style.display = "none";
                 } else {
                     msg.style.display = "block";
-                    setPlayerPiece(`imagens/${images[player]}`);
+                    setPlayerPiece(`images/${images[player]}`);
                 }
                 break;
             case "MESSAGE":
                 printBoard(data.board);
                 if (player === "VISITOR") {
-                    setMessage(`Current turn: <img src='imagens/${images[data.turn]}' alt=''>`);
+                    setMessage(`Current turn: <img src='images/${images[data.turn]}' alt=''>`);
                 } else {
                     setMessage(data.turn === player ? "Your turn." : "Opponent's turn.");
                 }
@@ -118,7 +118,7 @@ function GUI() {
         setButtonText(msgs["EXIT_ROOM"]);
         if (player === "VISITOR") {
             if (winner) {
-                setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='imagens/${images[winner]}' alt=''>`}`);
+                setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='images/${images[winner]}' alt=''>`}`);
             }
         } else {
             setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === player ? "You win!" : "You lose!")}`);
@@ -149,13 +149,25 @@ function GUI() {
         ws.close();
         ws = null;
     }
+    function createBoard() {
+        let tbody = document.querySelector("tbody");
+        let str = "";
+        for (let i = 0; i < 8; i++) {
+            str += "<tr>";
+            for (let j = 0; j < 8; j++) {
+                str += "<td></td>";
+            }
+        }
+        tbody.innerHTML = str;
+    }
     function init() {
         let button = document.querySelector("#quit");
         button.onclick = startGame;
         window.onbeforeunload = exit;
+        createBoard();
         startGame();
     }
-    return {init};
+    return { init };
 }
 let gui = new GUI();
 gui.init();
