@@ -1,0 +1,32 @@
+caption {
+    text-align: center;
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+table {
+    margin: 0 auto;
+}
+
+td {
+    width: 49px;
+    height: 49px;
+    border: 3px solid black;
+    text-align: center;
+    color: gray;
+    font-weight: bold;
+}
+
+tr:nth-child(2n+1) td:nth-child(2n),
+tr:nth-child(2n) td:nth-child(2n+1) {
+    background-color: gray;
+    color: white;
+}
+
+p {
+    text-align: center;
+}
+
+input[type="number"] {
+    width: 3em;
+}
