@@ -1,6 +1,6 @@
-import { CellState } from './CellState.js';
-import { Joust } from './Joust.js';
-import { Cell } from './Cell.js';
+import CellState from './CellState.js';
+import Joust from './Joust.js';
+import Cell from './Cell.js';
 
 function GUI() {
     let game = new Joust(8, 8);
