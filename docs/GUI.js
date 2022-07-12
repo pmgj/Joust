@@ -3,7 +3,7 @@ import { Joust } from './Joust.js';
 import { Cell } from './Cell.js';
 
 function GUI() {
-    let game;
+    let game = new Joust(8, 8);
     const images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
     function init() {
         let form = document.forms[0];
@@ -53,6 +53,25 @@ function GUI() {
     function changeMessage() {
         let msgs = { PLAYER1: "White's turn.", PLAYER2: "Black's turn." };
         setMessage(msgs[game.getTurn()]);
+        hidePossibleMoves();
+        showPossibleMoves();
+    }
+    function showPossibleMoves() {
+        let image = document.querySelector(`img[src*="${images[game.getTurn()]}"]`);
+        let origin = image.parentNode;
+        let moves = game.possibleMoves(coordinates(origin));
+        for (let { x, y } of moves) {
+            let tempCell = document.querySelector(`tr:nth-child(${x + 1}) td:nth-child(${y + 1})`);
+            tempCell.className = 'selected';
+        }
+    }
+    function hidePossibleMoves() {
+        let cells = document.querySelectorAll("td");
+        cells.forEach(c => {
+            if (c.className !== 'blocked') {
+                c.className = 'unselected';
+            }
+        });
     }
     function registerEvents() {
         let form = document.forms[0];

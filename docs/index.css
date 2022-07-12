@@ -3,9 +3,11 @@ caption {
     font-weight: bold;
     font-size: xx-large;
 }
+
 table {
     margin: 0 auto;
 }
+
 td {
     width: 49px;
     height: 49px;
@@ -16,16 +18,29 @@ td {
     font-family: sans-serif;
     font-size: 16px;
 }
-tr:nth-child(2n+1) td:nth-child(2n), tr:nth-child(2n) td:nth-child(2n+1) {
+
+tr:nth-child(2n+1) td:nth-child(2n),
+tr:nth-child(2n) td:nth-child(2n+1) {
     background-color: gray;
     color: white;
 }
+
 p {
     text-align: center;
 }
+
 input[type="number"] {
     width: 3em;
 }
+
 .blocked {
     border: 3px solid blue;
+}
+
+.selected {
+    border: 3px solid red;
+}
+
+.unselected {
+    border: 3px solid black;
 }
