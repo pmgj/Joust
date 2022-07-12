@@ -33,12 +33,20 @@ function GUI() {
         let image = document.querySelector(`img[src*="${images[game.getTurn()]}"]`);
         let origin = image.parentNode;
         try {
-            game.move(coordinates(origin), coordinates(this));
-            origin.textContent = "X";
-            origin.className = "blocked";
-            this.innerHTML = "";
-            this.appendChild(image);
-            changeMessage();
+            let begin = coordinates(origin);
+            let end = coordinates(this);
+            game.move(begin, end);
+            let { x: or, y: oc } = begin;
+            let { x: dr, y: dc } = end;
+            const time = 1000;
+            let anim = image.animate([{ top: 0, left: 0 }, { top: `${(dr - or) * 58}px`, left: `${(dc - oc) * 58}px` }], time);
+            anim.onfinish = () => {
+                origin.textContent = "X";
+                origin.className = "blocked";
+                this.innerHTML = "";
+                this.appendChild(image);
+                changeMessage();
+            };
         } catch (ex) {
             setMessage(ex.message);
         }
