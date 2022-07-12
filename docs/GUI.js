@@ -35,7 +35,7 @@ function GUI() {
         try {
             let begin = coordinates(origin);
             let end = coordinates(this);
-            game.move(begin, end);
+            let mr = game.move(begin, end);
             let { x: or, y: oc } = begin;
             let { x: dr, y: dc } = end;
             const time = 1000;
@@ -45,7 +45,7 @@ function GUI() {
                 origin.className = "blocked";
                 this.innerHTML = "";
                 this.appendChild(image);
-                changeMessage();
+                changeMessage(mr);
             };
         } catch (ex) {
             setMessage(ex.message);
@@ -58,11 +58,16 @@ function GUI() {
         let message = document.getElementById("message");
         message.innerHTML = msg;
     }
-    function changeMessage() {
-        let msgs = { PLAYER1: "White's turn.", PLAYER2: "Black's turn." };
-        setMessage(msgs[game.getTurn()]);
+    function changeMessage(m) {
         hidePossibleMoves();
-        showPossibleMoves();
+        let objs = { DRAW: "Draw!", PLAYER2: "Black's win!", PLAYER1: "White's win!" };
+        if (objs[m]) {
+            setMessage(`Game Over! ${objs[m]}`);
+        } else {
+            let msgs = { PLAYER1: "White's turn.", PLAYER2: "Black's turn." };
+            setMessage(msgs[game.getTurn()]);
+            showPossibleMoves();
+        }
     }
     function showPossibleMoves() {
         let image = document.querySelector(`img[src*="${images[game.getTurn()]}"]`);
