@@ -71,9 +71,9 @@ export default class Joust {
         let inLimit = (value, limit) => value >= 0 && value < limit;
         return (inLimit(x, this.rows) && inLimit(y, this.cols));
     }
-    possibleMoves({ x, y }) {
+    possibleMoves({ x, y }, matrix = this.board) {
         let positions = [new Cell(x - 2, y - 1), new Cell(x - 2, y + 1), new Cell(x + 2, y - 1), new Cell(x + 2, y + 1), new Cell(x - 1, y - 2), new Cell(x - 1, y + 2), new Cell(x + 1, y - 2), new Cell(x + 1, y + 2)];
-        return positions.filter(cell => this.onBoard(cell) && this.board[cell.x][cell.y] === CellState.EMPTY);
+        return positions.filter(cell => this.onBoard(cell) && matrix[cell.x][cell.y] === CellState.EMPTY);
     }
     endOfGame() {
         let p1 = this.canMove(Player.PLAYER1);

@@ -98,6 +98,7 @@ class GUI {
         let form = document.forms[0];
         form.rows.onchange = this.init.bind(this);
         form.cols.onchange = this.init.bind(this);
+        form.start.onclick = this.init.bind(this);
         this.init();
     }
 }
