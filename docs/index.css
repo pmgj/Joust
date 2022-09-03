@@ -41,10 +41,6 @@ input[type="number"] {
     border: 3px solid red;
 }
 
-.unselected {
-    border: 3px solid black;
-}
-
 img {
     position: relative;
     animation-fill-mode: backwards;

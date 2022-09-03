@@ -90,7 +90,7 @@ class GUI {
         let cells = document.querySelectorAll("td");
         cells.forEach(c => {
             if (c.className !== 'blocked') {
-                c.className = 'unselected';
+                c.className = '';
             }
         });
     }
