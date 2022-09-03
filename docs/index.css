@@ -9,8 +9,9 @@ table {
 }
 
 td {
-    width: 49px;
-    height: 49px;
+    --cell-size: 49px;
+    width: var(--cell-size);
+    height: var(--cell-size);
     border: 3px solid black;
     text-align: center;
     color: gray;

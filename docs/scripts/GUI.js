@@ -5,7 +5,7 @@ import Cell from './Cell.js';
 class GUI {
     constructor() {
         this.game = null;
-        this.images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };    
+        this.images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
     }
     init() {
         let form = document.forms[0];
@@ -46,7 +46,9 @@ class GUI {
             let { x: or, y: oc } = begin;
             let { x: dr, y: dc } = end;
             const time = 1000;
-            let anim = image.animate([{ top: 0, left: 0 }, { top: `${(dr - or) * 58}px`, left: `${(dc - oc) * 58}px` }], time);
+            let td = document.querySelector("td");
+            let size = td.offsetWidth;
+            let anim = image.animate([{ top: 0, left: 0 }, { top: `${(dr - or) * size}px`, left: `${(dc - oc) * size}px` }], time);
             anim.onfinish = () => {
                 origin.textContent = "X";
                 origin.className = "blocked";
