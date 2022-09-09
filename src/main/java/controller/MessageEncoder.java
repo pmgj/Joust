@@ -1,4 +1,4 @@
-package socket;
+package controller;
 
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.websocket.EncodeException;

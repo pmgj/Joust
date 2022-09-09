@@ -1,30 +1,32 @@
 import Cell from "./Cell.js";
 
-function GUI() {
-    let ws = null;
-    let images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
-    let player;
-    let msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };
-    function coordinates(cell) {
+class GUI {
+    constructor() {
+        this.ws = null;
+        this.images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
+        this.player = null;
+        this.msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };    
+    }
+    coordinates(cell) {
         return new Cell(cell.parentNode.rowIndex, cell.cellIndex);
     }
-    function setMessage(msg) {
+    setMessage(msg) {
         let message = document.getElementById("message");
         message.innerHTML = msg;
     }
-    function play(event) {
+    play(event) {
         let cellDestino = event.currentTarget;
-        let dCell = coordinates(cellDestino);
-        ws.send(JSON.stringify({ type: "MESSAGE", cell: dCell }));
+        let dCell = this.coordinates(cellDestino);
+        this.ws.send(JSON.stringify({ type: "MESSAGE", cell: dCell }));
     }
-    function printBoard(matrix) {
+    printBoard(matrix) {
         let table = document.querySelector("table");
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[i].length; j++) {
                 let td = table.rows[i].cells[j];
                 td.innerHTML = "";
                 td.className = "";
-                td.onclick = play;
+                td.onclick = this.play.bind(this);
                 switch (matrix[i][j]) {
                     case "BLOCKED":
                         td.className = "blocked";
@@ -32,17 +34,17 @@ function GUI() {
                         break;
                     case "PLAYER1":
                     case "PLAYER2":
-                        td.innerHTML = `<img src='images/${images[matrix[i][j]]}' alt=''>`;
+                        td.innerHTML = `<img src='images/${this.images[matrix[i][j]]}' alt=''>`;
                         break;
                 }
             }
         }
     }
-    function setButtonText(message) {
+    setButtonText(message) {
         let button = document.querySelector("#quit");
         button.value = message;
     }
-    function clearBoard() {
+    clearBoard() {
         let cells = document.querySelectorAll("td");
         cells.forEach(td => {
             td.innerHTML = "";
@@ -50,19 +52,21 @@ function GUI() {
             td.onclick = undefined;
         });
     }
-    function unsetEvents() {
+    unsetEvents() {
         let cells = document.querySelectorAll("td");
         cells.forEach(td => td.onclick = undefined);
     }
-    function enterRoom() {
-        let obj = { type: "ENTER_ROOM", room: parseInt(this.dataset.room) };
-        ws.send(JSON.stringify(obj));
+    enterRoom(evt) {
+        let input = evt.currentTarget;
+        let obj = { type: "ENTER_ROOM", room: parseInt(input.dataset.room) };
+        this.ws.send(JSON.stringify(obj));
     }
-    function watchRoom() {
-        let obj = { type: "WATCH_ROOM", room: parseInt(this.dataset.room) };
-        ws.send(JSON.stringify(obj));
+    watchRoom(evt) {
+        let input = evt.currentTarget;
+        let obj = { type: "WATCH_ROOM", room: parseInt(input.dataset.room) };
+        this.ws.send(JSON.stringify(obj));
     }
-    function readData(evt) {
+    readData(evt) {
         let data = JSON.parse(evt.data);
         switch (data.type) {
             case "GET_ROOMS":
@@ -76,65 +80,65 @@ function GUI() {
                 let rooms = document.querySelector("#rooms");
                 rooms.innerHTML = s;
                 let bPlay = document.querySelectorAll("input[value='Play']");
-                bPlay.forEach(b => b.onclick = enterRoom);
+                bPlay.forEach(b => b.onclick = this.enterRoom.bind(this));
                 let bWatch = document.querySelectorAll("input[value='Watch']");
-                bWatch.forEach(b => b.onclick = watchRoom);
+                bWatch.forEach(b => b.onclick = this.watchRoom.bind(this));
                 break;
             case "OPEN":
-                showRoom(true);
-                player = data.turn;
-                setMessage("");
-                clearBoard();
+                this.showRoom(true);
+                this.player = data.turn;
+                this.setMessage("");
+                this.clearBoard();
                 let msg = document.getElementById("pieceMessage");
-                if (player === "VISITOR") {
+                if (this.player === "VISITOR") {
                     msg.style.display = "none";
                 } else {
                     msg.style.display = "block";
-                    setPlayerPiece(`images/${images[player]}`);
+                    this.setPlayerPiece(`images/${this.images[this.player]}`);
                 }
                 break;
             case "MESSAGE":
-                printBoard(data.board);
-                if (player === "VISITOR") {
-                    setMessage(`Current turn: <img src='images/${images[data.turn]}' alt=''>`);
+                this.printBoard(data.board);
+                if (this.player === "VISITOR") {
+                    this.setMessage(`Current turn: <img src='images/${this.images[data.turn]}' alt=''>`);
                 } else {
-                    setMessage(data.turn === player ? "Your turn." : "Opponent's turn.");
+                    this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
                 }
                 break;
             case "ENDGAME":
-                printBoard(data.board);
-                closeConnection(1000, data.winner);
+                this.printBoard(data.board);
+                this.closeConnection(1000, data.winner);
                 break;
         }
     }
-    function setPlayerPiece(url) {
+    setPlayerPiece(url) {
         let img = document.getElementById("playerPiece");
         img.src = url;
     }
-    function closeConnection(closeCode, winner) {
-        unsetEvents();
-        ws.close(closeCode);
-        ws = null;
-        setButtonText(msgs["EXIT_ROOM"]);
-        if (player === "VISITOR") {
+    closeConnection(closeCode, winner) {
+        this.unsetEvents();
+        this.ws.close(closeCode);
+        this.ws = null;
+        this.setButtonText(this.msgs["EXIT_ROOM"]);
+        if (this.player === "VISITOR") {
             if (winner) {
-                setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='images/${images[winner]}' alt=''>`}`);
+                this.setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='images/${this.images[winner]}' alt=''>`}`);
             }
         } else {
-            setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === player ? "You win!" : "You lose!")}`);
+            this.setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === this.player ? "You win!" : "You lose!")}`);
         }
     }
-    function startGame() {
-        if (ws) {
-            closeConnection(4000);
+    startGame() {
+        if (this.ws) {
+            this.closeConnection(4000);
         } else {
-            ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
-            ws.onmessage = readData;
-            setButtonText(msgs["QUIT_GAME"]);
-            showRoom(false);
+            this.ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
+            this.ws.onmessage = this.readData.bind(this);
+            this.setButtonText(this.msgs["QUIT_GAME"]);
+            this.showRoom(false);
         }
     }
-    function showRoom(show) {
+    showRoom(show) {
         let rooms = document.querySelector("#rooms");
         let room = document.querySelector("#room");
         if (show) {
@@ -145,11 +149,11 @@ function GUI() {
             room.style.display = "none";
         }
     }
-    function exit() {
-        ws.close();
-        ws = null;
+    exit() {
+        this.ws.close();
+        this.ws = null;
     }
-    function createBoard() {
+    createBoard() {
         let tbody = document.querySelector("tbody");
         let str = "";
         for (let i = 0; i < 8; i++) {
@@ -160,14 +164,13 @@ function GUI() {
         }
         tbody.innerHTML = str;
     }
-    function init() {
+    init() {
         let button = document.querySelector("#quit");
-        button.onclick = startGame;
-        window.onbeforeunload = exit;
-        createBoard();
-        startGame();
+        button.onclick = this.startGame.bind(this);
+        window.onbeforeunload = this.exit.bind(this);
+        this.createBoard();
+        this.startGame();
     }
-    return { init };
 }
 let gui = new GUI();
 gui.init();

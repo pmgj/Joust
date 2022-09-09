@@ -1,4 +1,4 @@
-package socket;
+package controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,9 +67,10 @@ public class Endpoint {
                 room = findRoom(session);
                 Joust game = room.getGame();
                 try {
-                    Winner ret = game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2,
+                    game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2,
                             message.getCell());
-                    if (ret == null) {
+                    Winner ret = game.getWinner();
+                    if (ret == Winner.NONE) {
                         sendMessage(room, new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
                     } else {
                         sendMessage(room, new Message(ConnectionType.ENDGAME, ret, game.getBoard()));

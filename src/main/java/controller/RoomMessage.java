@@ -1,4 +1,4 @@
-package socket;
+package controller;
 
 public class RoomMessage {
     private boolean s1;

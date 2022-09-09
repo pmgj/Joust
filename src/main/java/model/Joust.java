@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 public class Joust {
 
@@ -8,7 +9,7 @@ public class Joust {
     private final int cols;
     private final CellState[][] board;
     private Player turn = Player.PLAYER1;
-    private Winner gameIsOver;
+    private Winner winner = Winner.NONE;
 
     public Joust(int nrows, int ncols) {
         this.rows = nrows;
@@ -33,11 +34,11 @@ public class Joust {
         return matrix;
     }
 
-    public Winner move(Player player, Cell endCell) throws Exception {
-        if (gameIsOver != null) {
-            return gameIsOver;
+    public void move(Player player, Cell endCell) throws Exception {
+        if (winner != Winner.NONE) {
+            throw new Exception("This game is already finished.");
         }
-        if (player != turn) {
+        if (player != this.turn) {
             throw new Exception("It's not your turn.");
         }
         Cell beginCell = getPlayerCell(player);
@@ -58,8 +59,7 @@ public class Joust {
         board[dr][dc] = board[or][oc];
         board[or][oc] = CellState.BLOCKED;
         turn = (turn == Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
-        gameIsOver = isGameOver();
-        return gameIsOver;
+        this.winner = isGameOver();
     }
 
     private boolean isValidMove(Cell beginCell, Cell endCell) {
@@ -72,7 +72,7 @@ public class Joust {
         Cell[] pos = {new Cell(-2, -1), new Cell(-2, 1), new Cell(2, -1), new Cell(2, 1), new Cell(-1, -2), new Cell(-1, 2), new Cell(1, -2), new Cell(1, 2)};
         for (Cell c : pos) {
             Cell cell = new Cell(or + c.getX(), oc + c.getY());
-            if (isValidCell(cell) && cell.equals(endCell)) {
+            if (this.onBoard(cell) && cell.equals(endCell)) {
                 return true;
             }
         }
@@ -114,15 +114,16 @@ public class Joust {
         } else if (!p2) {
             return Winner.PLAYER1;
         }
-        return null;
+        return Winner.NONE;
     }
 
     public Winner getWinner() {
         return isGameOver();
     }
 
-    private boolean isValidCell(Cell cell) {
-        return (cell.getX() < rows && cell.getX() >= 0 && cell.getY() < cols && cell.getY() >= 0);
+    private boolean onBoard(Cell cell) {
+        BiFunction<Integer, Integer, Boolean> inLimit = (value, limit) -> value >= 0 && value < limit;
+        return (inLimit.apply(cell.getX(), this.rows) && inLimit.apply(cell.getY(), this.cols));
     }
 
     public Player getTurn() {
