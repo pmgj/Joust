@@ -42,7 +42,7 @@ class GUI {
             const destination = evt.target;
             let begin = this.coordinates(origin);
             let end = this.coordinates(destination);
-            let mr = this.game.move(begin, end);
+            this.game.move(begin, end);
             let { x: or, y: oc } = begin;
             let { x: dr, y: dc } = end;
             const time = 1000;
@@ -54,7 +54,7 @@ class GUI {
                 origin.className = "blocked";
                 destination.innerHTML = "";
                 destination.appendChild(image);
-                this.changeMessage(mr);
+                this.changeMessage(this.game.getWinner());
             };
         } catch (ex) {
             this.setMessage(ex.message);

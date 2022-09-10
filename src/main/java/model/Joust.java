@@ -118,7 +118,7 @@ public class Joust {
     }
 
     public Winner getWinner() {
-        return isGameOver();
+        return this.winner;
     }
 
     private boolean onBoard(Cell cell) {

@@ -11,6 +11,9 @@ export default class Joust {
         this.board = this.startBoard();
         this.winner = Winner.NONE;
     }
+    getWinner() {
+        return this.winner;
+    }
     getBoard() {
         return this.board;
     }
@@ -31,7 +34,7 @@ export default class Joust {
     }
     move(beginCell, endCell) {
         if(this.winner !== Winner.NONE) {
-            return this.winner;
+            throw new Error("This game is already finished.");
         }
         let { x: or, y: oc } = beginCell;
         let { x: dr, y: dc } = endCell;
@@ -62,7 +65,6 @@ export default class Joust {
         this.board[or][oc] = CellState.BLOCKED;
         this.turn = (this.turn === Player.PLAYER1) ? Player.PLAYER2 : Player.PLAYER1;
         this.winner = this.endOfGame();
-        return this.winner;
     }
     getPiece({ x, y }) {
         return this.board[x][y];
