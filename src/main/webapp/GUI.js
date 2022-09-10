@@ -1,4 +1,7 @@
 import Cell from "./Cell.js";
+import CellState from "./CellState.js";
+import ConnectionType from "./ConnectionType.js";
+import Winner from "./Winner.js";
 
 class GUI {
     constructor() {
@@ -17,7 +20,7 @@ class GUI {
     play(event) {
         let cellDestino = event.currentTarget;
         let dCell = this.coordinates(cellDestino);
-        this.ws.send(JSON.stringify({ type: "MESSAGE", cell: dCell }));
+        this.ws.send(JSON.stringify({ type: ConnectionType.MESSAGE, cell: dCell }));
     }
     printBoard(matrix) {
         let table = document.querySelector("table");
@@ -28,12 +31,12 @@ class GUI {
                 td.className = "";
                 td.onclick = this.play.bind(this);
                 switch (matrix[i][j]) {
-                    case "BLOCKED":
+                    case CellState.BLOCKED:
                         td.className = "blocked";
                         td.innerHTML = "X";
                         break;
-                    case "PLAYER1":
-                    case "PLAYER2":
+                    case CellState.PLAYER1:
+                    case CellState.PLAYER2:
                         td.innerHTML = `<img src='images/${this.images[matrix[i][j]]}' alt=''>`;
                         break;
                 }
@@ -58,18 +61,18 @@ class GUI {
     }
     enterRoom(evt) {
         let input = evt.currentTarget;
-        let obj = { type: "ENTER_ROOM", room: parseInt(input.dataset.room) };
+        let obj = { type: ConnectionType.ENTER_ROOM, room: parseInt(input.dataset.room) };
         this.ws.send(JSON.stringify(obj));
     }
     watchRoom(evt) {
         let input = evt.currentTarget;
-        let obj = { type: "WATCH_ROOM", room: parseInt(input.dataset.room) };
+        let obj = { type: ConnectionType.WATCH_ROOM, room: parseInt(input.dataset.room) };
         this.ws.send(JSON.stringify(obj));
     }
     readData(evt) {
         let data = JSON.parse(evt.data);
         switch (data.type) {
-            case "GET_ROOMS":
+            case ConnectionType.GET_ROOMS:
                 let s = "";
                 for (let i = 0; i < data.rooms.length; i++) {
                     let room = data.rooms[i];
@@ -84,7 +87,7 @@ class GUI {
                 let bWatch = document.querySelectorAll("input[value='Watch']");
                 bWatch.forEach(b => b.onclick = this.watchRoom.bind(this));
                 break;
-            case "OPEN":
+            case ConnectionType.OPEN:
                 this.showRoom(true);
                 this.player = data.turn;
                 this.setMessage("");
@@ -97,7 +100,7 @@ class GUI {
                     this.setPlayerPiece(`images/${this.images[this.player]}`);
                 }
                 break;
-            case "MESSAGE":
+            case ConnectionType.MESSAGE:
                 this.printBoard(data.board);
                 if (this.player === "VISITOR") {
                     this.setMessage(`Current turn: <img src='images/${this.images[data.turn]}' alt=''>`);
@@ -105,7 +108,7 @@ class GUI {
                     this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
                 }
                 break;
-            case "ENDGAME":
+            case ConnectionType.ENDGAME:
                 this.printBoard(data.board);
                 this.closeConnection(1000, data.winner);
                 break;
@@ -122,10 +125,10 @@ class GUI {
         this.setButtonText(this.msgs["EXIT_ROOM"]);
         if (this.player === "VISITOR") {
             if (winner) {
-                this.setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : `Winner: <img src='images/${this.images[winner]}' alt=''>`}`);
+                this.setMessage(`Game Over! ${(winner === Winner.DRAW) ? "Draw!" : `Winner: <img src='images/${this.images[winner]}' alt=''>`}`);
             }
         } else {
-            this.setMessage(`Game Over! ${(winner === "DRAW") ? "Draw!" : (winner === this.player ? "You win!" : "You lose!")}`);
+            this.setMessage(`Game Over! ${(winner === Winner.DRAW) ? "Draw!" : (winner === this.player ? "You win!" : "You lose!")}`);
         }
     }
     startGame() {
