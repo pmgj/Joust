@@ -29,51 +29,51 @@ public class Endpoint {
 
     @OnOpen
     public void onOpen(Session session) throws IOException, EncodeException {
-        session.getBasicRemote().sendObject(new Message(ConnectionType.GET_ROOMS, this.convert(rooms)));
+        session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.GET_ROOMS, this.convert(rooms)));
         onRooms.add(session);
     }
 
     @OnMessage
-    public void onMessage(Session session, Message message) throws EncodeException, IOException {
+    public void onMessage(Session session, InputMessage message) throws EncodeException, IOException {
         Room room;
+        Joust game;
         switch (message.getType()) {
             case ENTER_ROOM:
                 room = rooms.get(message.getRoom());
                 if (room.getS1() == null) {
                     onRooms.remove(session);
                     room.setS1(session);
-                    session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER1));
+                    session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.PLAYER1));
                 } else if (room.getS2() == null) {
                     onRooms.remove(session);
                     room.setS2(session);
-                    session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.PLAYER2));
+                    session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.PLAYER2));
                     room.createGame();
-                    Joust j = room.getGame();
-                    sendMessage(room, new Message(ConnectionType.MESSAGE, j.getTurn(), j.getBoard()));
+                    game = room.getGame();
+                    sendMessage(room, new OutputMessage(ConnectionType.MESSAGE, game));
                     updateRooms();
                 }
                 break;
             case WATCH_ROOM:
                 room = rooms.get(message.getRoom());
-                Joust j = room.getGame();
-                if (j == null)
+                game = room.getGame();
+                if (game == null)
                     return;
                 onRooms.remove(session);
                 room.getVisitors().add(session);
-                session.getBasicRemote().sendObject(new Message(ConnectionType.OPEN, Player.VISITOR));
-                session.getBasicRemote().sendObject(new Message(ConnectionType.MESSAGE, j.getTurn(), j.getBoard()));
+                session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.VISITOR));
+                session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.MESSAGE, game));
                 break;
-            case MESSAGE:
+            case MOVE_PIECE:
                 room = findRoom(session);
-                Joust game = room.getGame();
+                game = room.getGame();
                 try {
-                    game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2,
-                            message.getCell());
+                    game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2, message.getCell());
                     Winner ret = game.getWinner();
                     if (ret == Winner.NONE) {
-                        sendMessage(room, new Message(ConnectionType.MESSAGE, game.getTurn(), game.getBoard()));
+                        sendMessage(room, new OutputMessage(ConnectionType.MESSAGE, game));
                     } else {
-                        sendMessage(room, new Message(ConnectionType.ENDGAME, ret, game.getBoard()));
+                        sendMessage(room, new OutputMessage(ConnectionType.ENDGAME, game));
                     }
                 } catch (Exception ex) {
 
@@ -98,12 +98,14 @@ public class Endpoint {
         List<Session> visitors = r.getVisitors();
         if (s1 == session) {
             if (s2 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                sendMessage(r, new Message(ConnectionType.ENDGAME, Winner.PLAYER2, game.getBoard()));
+                game.setWinner(Winner.PLAYER2);
+                sendMessage(r, new OutputMessage(ConnectionType.ENDGAME, game));
             }
         }
         if (s2 == session) {
             if (s1 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                sendMessage(r, new Message(ConnectionType.ENDGAME, Winner.PLAYER1, game.getBoard()));
+                game.setWinner(Winner.PLAYER1);
+                sendMessage(r, new OutputMessage(ConnectionType.ENDGAME, game));
             }
         }
         if (visitors.contains(session)) {
@@ -129,7 +131,7 @@ public class Endpoint {
     }
 
     private void updateRooms() throws EncodeException, IOException {
-        Message message = new Message(ConnectionType.GET_ROOMS, this.convert(rooms));
+        OutputMessage message = new OutputMessage(ConnectionType.GET_ROOMS, this.convert(rooms));
         for (Session s : onRooms) {
             if (s.isOpen()) {
                 s.getBasicRemote().sendObject(message);
@@ -143,7 +145,7 @@ public class Endpoint {
         return ret;
     }
 
-    private void sendMessage(Room room, Message msg) throws EncodeException, IOException {
+    private void sendMessage(Room room, OutputMessage msg) throws EncodeException, IOException {
         if (room.getS1().isOpen()) {
             room.getS1().getBasicRemote().sendObject(msg);
         }

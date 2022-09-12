@@ -133,4 +133,11 @@ public class Joust {
     public CellState[][] getBoard() {
         return board;
     }
+
+    public void setWinner(Winner winner) {
+        if(this.winner != Winner.NONE) {
+            return;
+        }
+        this.winner = winner;
+    }
 }

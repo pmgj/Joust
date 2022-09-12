@@ -1,14 +1,16 @@
 import Cell from "./Cell.js";
 import CellState from "./CellState.js";
 import ConnectionType from "./ConnectionType.js";
+import MessageType from "./MessageType.js";
 import Winner from "./Winner.js";
+import Player from "./Player.js";
 
 class GUI {
     constructor() {
         this.ws = null;
         this.images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
         this.player = null;
-        this.msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };    
+        this.msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };
     }
     coordinates(cell) {
         return new Cell(cell.parentNode.rowIndex, cell.cellIndex);
@@ -20,7 +22,7 @@ class GUI {
     play(event) {
         let cellDestino = event.currentTarget;
         let dCell = this.coordinates(cellDestino);
-        this.ws.send(JSON.stringify({ type: ConnectionType.MESSAGE, cell: dCell }));
+        this.ws.send(JSON.stringify({ type: MessageType.MOVE_PIECE, cell: dCell }));
     }
     printBoard(matrix) {
         let table = document.querySelector("table");
@@ -61,16 +63,17 @@ class GUI {
     }
     enterRoom(evt) {
         let input = evt.currentTarget;
-        let obj = { type: ConnectionType.ENTER_ROOM, room: parseInt(input.dataset.room) };
+        let obj = { type: MessageType.ENTER_ROOM, room: parseInt(input.dataset.room) };
         this.ws.send(JSON.stringify(obj));
     }
     watchRoom(evt) {
         let input = evt.currentTarget;
-        let obj = { type: ConnectionType.WATCH_ROOM, room: parseInt(input.dataset.room) };
+        let obj = { type: MessageType.WATCH_ROOM, room: parseInt(input.dataset.room) };
         this.ws.send(JSON.stringify(obj));
     }
     readData(evt) {
         let data = JSON.parse(evt.data);
+        let game = data.game;
         switch (data.type) {
             case ConnectionType.GET_ROOMS:
                 let s = "";
@@ -93,7 +96,7 @@ class GUI {
                 this.setMessage("");
                 this.clearBoard();
                 let msg = document.getElementById("pieceMessage");
-                if (this.player === "VISITOR") {
+                if (this.player === Player.VISITOR) {
                     msg.style.display = "none";
                 } else {
                     msg.style.display = "block";
@@ -101,16 +104,16 @@ class GUI {
                 }
                 break;
             case ConnectionType.MESSAGE:
-                this.printBoard(data.board);
-                if (this.player === "VISITOR") {
-                    this.setMessage(`Current turn: <img src='images/${this.images[data.turn]}' alt=''>`);
+                this.printBoard(game.board);
+                if (this.player === Player.VISITOR) {
+                    this.setMessage(`Current turn: <img src='images/${this.images[game.turn]}' alt=''>`);
                 } else {
-                    this.setMessage(data.turn === this.player ? "Your turn." : "Opponent's turn.");
+                    this.setMessage(game.turn === this.player ? "Your turn." : "Opponent's turn.");
                 }
                 break;
             case ConnectionType.ENDGAME:
-                this.printBoard(data.board);
-                this.closeConnection(1000, data.winner);
+                this.printBoard(game.board);
+                this.closeConnection(1000, game.winner);
                 break;
         }
     }
@@ -123,7 +126,7 @@ class GUI {
         this.ws.close(closeCode);
         this.ws = null;
         this.setButtonText(this.msgs["EXIT_ROOM"]);
-        if (this.player === "VISITOR") {
+        if (this.player === Player.VISITOR) {
             if (winner) {
                 this.setMessage(`Game Over! ${(winner === Winner.DRAW) ? "Draw!" : `Winner: <img src='images/${this.images[winner]}' alt=''>`}`);
             }
