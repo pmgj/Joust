@@ -3,6 +3,7 @@ package controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.websocket.CloseReason;
@@ -67,16 +68,13 @@ public class Endpoint {
                 this.exitRoom(session);
                 break;
             case MOVE_PIECE:
-                room = findRoom(session);
+                room = this.findRoom(session).get();
                 game = room.getGame();
                 try {
                     game.move(session == room.getS1() ? Player.PLAYER1 : Player.PLAYER2, message.getCell());
                     Winner ret = game.getWinner();
-                    if (ret == Winner.NONE) {
-                        sendMessage(room, new OutputMessage(ConnectionType.MESSAGE, game));
-                    } else {
-                        sendMessage(room, new OutputMessage(ConnectionType.ENDGAME, game));
-                    }
+                    sendMessage(room, new OutputMessage(
+                            ret == Winner.NONE ? ConnectionType.MESSAGE : ConnectionType.ENDGAME, game));
                 } catch (Exception ex) {
 
                 }
@@ -92,10 +90,11 @@ public class Endpoint {
     }
 
     private void exitRoom(Session session) throws EncodeException, IOException {
-        Room room = findRoom(session);
-        if (room == null) {
+        Optional<Room> optional = this.findRoom(session);
+        if (optional.isEmpty()) {
             return;
         }
+        Room room = optional.get();
         Session s1 = room.getS1();
         Session s2 = room.getS2();
         Joust game = room.getGame();
@@ -107,22 +106,22 @@ public class Endpoint {
         }
         if (s1 == session || s2 == session) {
             sendMessage(room, new OutputMessage(ConnectionType.ENDGAME, game));
-            updateRooms();
         }
         List<Session> visitors = room.getVisitors();
         visitors.remove(session);
         if (s1 == session || s2 == session) {
             room.reset();
+            updateRooms();
         }
     }
 
-    private Room findRoom(Session s) {
+    private Optional<Room> findRoom(Session s) {
         for (Room r : rooms) {
             if (r.getS1() == s || r.getS2() == s || r.getVisitors().contains(s)) {
-                return r;
+                return Optional.of(r);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private void updateRooms() throws EncodeException, IOException {

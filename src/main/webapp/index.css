@@ -33,11 +33,12 @@ p {
     border: 3px solid blue;
 }
 
-#rooms {
+.rooms {
     grid-template-columns: 33% 33% 33%;
     max-width: 40%;
     margin: 0 auto;
     gap: 10px;
+    display: grid;
 }
 
 fieldset {
@@ -46,4 +47,8 @@ fieldset {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.hide {
+    display: none;
 }

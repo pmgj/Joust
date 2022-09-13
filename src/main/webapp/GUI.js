@@ -87,7 +87,7 @@ class GUI {
                     <input type="button" value="Play" data-room="${i}" ${room.s1 && room.s2 ? "disabled='disabled'" : ""} />
                     <input type="button" value="Watch" data-room="${i}" ${!room.s1 || !room.s2 ? "disabled='disabled'" : ""} /></fieldset>`;
                 }
-                let rooms = document.querySelector("#rooms");
+                let rooms = document.querySelector(".rooms");
                 rooms.innerHTML = s;
                 let bPlay = document.querySelectorAll("input[value='Play']");
                 bPlay.forEach(b => b.onclick = this.enterRoom.bind(this));
@@ -101,9 +101,9 @@ class GUI {
                 this.clearBoard();
                 let msg = document.getElementById("pieceMessage");
                 if (this.player === Player.VISITOR) {
-                    msg.style.display = "none";
+                    msg.className = "hide";
                 } else {
-                    msg.style.display = "block";
+                    msg.className = "show";
                     this.setPlayerPiece(`images/${this.images[this.player]}`);
                 }
                 break;
@@ -141,14 +141,14 @@ class GUI {
         this.showRoom(false);
     }
     showRoom(show) {
-        let rooms = document.querySelector("#rooms");
-        let room = document.querySelector("#room");
+        let rooms = document.querySelector(".rooms");
+        let room = document.querySelector(".room");
         if (show) {
-            rooms.style.display = "none";
-            room.style.display = "grid";
+            rooms.classList.add("hide");
+            room.classList.remove("hide");
         } else {
-            rooms.style.display = "grid";
-            room.style.display = "none";
+            rooms.classList.remove("hide");
+            room.classList.add("hide");
         }
     }
     createBoard() {
