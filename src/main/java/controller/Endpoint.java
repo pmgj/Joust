@@ -3,6 +3,8 @@ package controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.OnClose;
@@ -140,9 +142,7 @@ public class Endpoint {
     }
 
     private List<RoomMessage> convert(List<Room> rooms) {
-        List<RoomMessage> ret = new ArrayList<>();
-        rooms.stream().map(room -> new RoomMessage(room)).forEachOrdered(rm -> ret.add(rm));
-        return ret;
+        return rooms.stream().map(room -> new RoomMessage(room)).collect(Collectors.toList());
     }
 
     private void sendMessage(Room room, OutputMessage msg) throws EncodeException, IOException {
