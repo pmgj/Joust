@@ -43,11 +43,9 @@ public class Endpoint {
             case ENTER_ROOM:
                 room = rooms.get(message.getRoom());
                 if (room.getS1() == null) {
-                    onRooms.remove(session);
                     room.setS1(session);
                     session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.PLAYER1));
                 } else if (room.getS2() == null) {
-                    onRooms.remove(session);
                     room.setS2(session);
                     session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.PLAYER2));
                     room.createGame();
@@ -61,10 +59,12 @@ public class Endpoint {
                 game = room.getGame();
                 if (game == null)
                     return;
-                onRooms.remove(session);
                 room.getVisitors().add(session);
                 session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.OPEN, Player.VISITOR));
                 session.getBasicRemote().sendObject(new OutputMessage(ConnectionType.MESSAGE, game));
+                break;
+            case EXIT_ROOM:
+                this.exitRoom(session);
                 break;
             case MOVE_PIECE:
                 room = findRoom(session);
@@ -87,39 +87,32 @@ public class Endpoint {
 
     @OnClose
     public void onClose(Session session, CloseReason reason) throws IOException, EncodeException {
-        if (onRooms.contains(session)) {
-            onRooms.remove(session);
-        }
-        Room r = findRoom(session);
-        if (r == null) {
+        this.exitRoom(session);
+        onRooms.remove(session);
+    }
+
+    private void exitRoom(Session session) throws EncodeException, IOException {
+        Room room = findRoom(session);
+        if (room == null) {
             return;
         }
-        Session s1 = r.getS1();
-        Session s2 = r.getS2();
-        Joust game = r.getGame();
-        List<Session> visitors = r.getVisitors();
+        Session s1 = room.getS1();
+        Session s2 = room.getS2();
+        Joust game = room.getGame();
         if (s1 == session) {
-            if (s2 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                game.setWinner(Winner.PLAYER2);
-                sendMessage(r, new OutputMessage(ConnectionType.ENDGAME, game));
-            }
+            game.setWinner(Winner.PLAYER2);
         }
         if (s2 == session) {
-            if (s1 != null && reason.getCloseCode() != CloseReason.CloseCodes.NORMAL_CLOSURE) {
-                game.setWinner(Winner.PLAYER1);
-                sendMessage(r, new OutputMessage(ConnectionType.ENDGAME, game));
-            }
-        }
-        if (visitors.contains(session)) {
-            visitors.remove(session);
-            onRooms.add(session);
+            game.setWinner(Winner.PLAYER1);
         }
         if (s1 == session || s2 == session) {
-            if (rooms.contains(r)) {
-                int index = rooms.indexOf(r);
-                rooms.set(index, new Room());
-                updateRooms();
-            }
+            sendMessage(room, new OutputMessage(ConnectionType.ENDGAME, game));
+            updateRooms();
+        }
+        List<Session> visitors = room.getVisitors();
+        visitors.remove(session);
+        if (s1 == session || s2 == session) {
+            room.reset();
         }
     }
 

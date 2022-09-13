@@ -10,7 +10,6 @@ class GUI {
         this.ws = null;
         this.images = { PLAYER1: "White-Knight.svg", PLAYER2: "Black-Knight.svg" };
         this.player = null;
-        this.msgs = { QUIT_GAME: "Quit game", EXIT_ROOM: "Exit room" };
     }
     coordinates(cell) {
         return new Cell(cell.parentNode.rowIndex, cell.cellIndex);
@@ -71,6 +70,11 @@ class GUI {
         let obj = { type: MessageType.WATCH_ROOM, room: parseInt(input.dataset.room) };
         this.ws.send(JSON.stringify(obj));
     }
+    exitRoom() {
+        let obj = { type: MessageType.EXIT_ROOM };
+        this.ws.send(JSON.stringify(obj));
+        this.showRoom(false);
+    }
     readData(evt) {
         let data = JSON.parse(evt.data);
         let game = data.game;
@@ -81,7 +85,7 @@ class GUI {
                     let room = data.rooms[i];
                     s += `<fieldset><legend>Room ${i + 1}</legend>
                     <input type="button" value="Play" data-room="${i}" ${room.s1 && room.s2 ? "disabled='disabled'" : ""} />
-                    <input type="button" value="Watch" data-room="${i}" /></fieldset>`;
+                    <input type="button" value="Watch" data-room="${i}" ${!room.s1 || !room.s2 ? "disabled='disabled'" : ""} /></fieldset>`;
                 }
                 let rooms = document.querySelector("#rooms");
                 rooms.innerHTML = s;
@@ -113,7 +117,7 @@ class GUI {
                 break;
             case ConnectionType.ENDGAME:
                 this.printBoard(game.board);
-                this.closeConnection(1000, game.winner);
+                this.closeConnection(game.winner);
                 break;
         }
     }
@@ -121,11 +125,8 @@ class GUI {
         let img = document.getElementById("playerPiece");
         img.src = url;
     }
-    closeConnection(closeCode, winner) {
+    closeConnection(winner) {
         this.unsetEvents();
-        this.ws.close(closeCode);
-        this.ws = null;
-        this.setButtonText(this.msgs["EXIT_ROOM"]);
         if (this.player === Player.VISITOR) {
             if (winner) {
                 this.setMessage(`Game Over! ${(winner === Winner.DRAW) ? "Draw!" : `Winner: <img src='images/${this.images[winner]}' alt=''>`}`);
@@ -135,14 +136,9 @@ class GUI {
         }
     }
     startGame() {
-        if (this.ws) {
-            this.closeConnection(4000);
-        } else {
-            this.ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
-            this.ws.onmessage = this.readData.bind(this);
-            this.setButtonText(this.msgs["QUIT_GAME"]);
-            this.showRoom(false);
-        }
+        this.ws = new WebSocket(`ws://${document.location.host}${document.location.pathname}joust`);
+        this.ws.onmessage = this.readData.bind(this);
+        this.showRoom(false);
     }
     showRoom(show) {
         let rooms = document.querySelector("#rooms");
@@ -154,10 +150,6 @@ class GUI {
             rooms.style.display = "grid";
             room.style.display = "none";
         }
-    }
-    exit() {
-        this.ws.close();
-        this.ws = null;
     }
     createBoard() {
         let tbody = document.querySelector("tbody");
@@ -172,8 +164,7 @@ class GUI {
     }
     init() {
         let button = document.querySelector("#quit");
-        button.onclick = this.startGame.bind(this);
-        window.onbeforeunload = this.exit.bind(this);
+        button.onclick = this.exitRoom.bind(this);
         this.createBoard();
         this.startGame();
     }

@@ -15,7 +15,14 @@ public class Room {
         this.game = null;
         visitors.clear();
     }
-        
+
+    public void reset() {
+        this.s1 = null;
+        this.s2 = null;
+        this.game = null;
+        visitors.clear();
+    }
+
     public List<Session> getVisitors() {
         return visitors;
     }
