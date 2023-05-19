@@ -9,8 +9,8 @@ class GUI {
     }
     init() {
         let form = document.forms[0];
-        let cols = parseInt(form.cols.value);
-        let rows = parseInt(form.rows.value);
+        let cols = form.cols.valueAsNumber;
+        let rows = form.rows.valueAsNumber;
         this.game = new Joust(rows, cols);
         let tab = this.game.getBoard();
         let tbody = document.querySelector("tbody");
