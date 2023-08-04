@@ -42,8 +42,8 @@ public class Joust {
             throw new Exception("It's not your turn.");
         }
         Cell beginCell = getPlayerCell(player);
-        int or = beginCell.getX(), oc = beginCell.getY();
-        int dr = endCell.getX(), dc = endCell.getY();
+        int or = beginCell.x(), oc = beginCell.y();
+        int dr = endCell.x(), dc = endCell.y();
         if (beginCell.equals(endCell)) {
             throw new Exception("Origin and destination must be different.");
         }
@@ -63,15 +63,15 @@ public class Joust {
     }
 
     private boolean isValidMove(Cell beginCell, Cell endCell) {
-        int or = beginCell.getX(), oc = beginCell.getY();
-        int dr = endCell.getX(), dc = endCell.getY();
+        int or = beginCell.x(), oc = beginCell.y();
+        int dr = endCell.x(), dc = endCell.y();
         /* Destino deve estar vazio */
         if (board[dr][dc] != CellState.EMPTY) {
             return false;
         }
         Cell[] pos = {new Cell(-2, -1), new Cell(-2, 1), new Cell(2, -1), new Cell(2, 1), new Cell(-1, -2), new Cell(-1, 2), new Cell(1, -2), new Cell(1, 2)};
         for (Cell c : pos) {
-            Cell cell = new Cell(or + c.getX(), oc + c.getY());
+            Cell cell = new Cell(or + c.x(), oc + c.y());
             if (this.onBoard(cell) && cell.equals(endCell)) {
                 return true;
             }
@@ -123,7 +123,7 @@ public class Joust {
 
     private boolean onBoard(Cell cell) {
         BiFunction<Integer, Integer, Boolean> inLimit = (value, limit) -> value >= 0 && value < limit;
-        return (inLimit.apply(cell.getX(), this.rows) && inLimit.apply(cell.getY(), this.cols));
+        return (inLimit.apply(cell.x(), this.rows) && inLimit.apply(cell.y(), this.cols));
     }
 
     public Player getTurn() {
