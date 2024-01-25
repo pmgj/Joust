@@ -10,9 +10,11 @@ table {
 }
 
 td {
-    --cell-size: 53px;
-    width: var(--cell-size);
-    height: var(--cell-size);
+    --cell-size: 10vmin;
+    --min-size: 30px;
+    --max-size: 50px;
+    width: clamp(var(--min-size), var(--cell-size), var(--max-size));
+    height: clamp(var(--min-size), var(--cell-size), var(--max-size));
     border: 3px solid black;
     text-align: center;
     color: gray;
@@ -46,4 +48,5 @@ input[type="number"] {
 img {
     position: relative;
     animation-fill-mode: backwards;
+    width: 90%;
 }
